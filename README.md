@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AWS Containerized Web Application (Next.js)
 
-## Getting Started
+This project demonstrates a fully automated containerization and deployment pipeline using AWS-native services, serving as an alternative to the Azure Containerization assignment.
 
-First, run the development server:
+## Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```text
+GitHub Repository
+      |
+      v
+GitHub Actions Pipeline (Build & Push)
+      |
+      v
+Amazon ECR (Private Container Registry)
+      |
+      v
+AWS App Runner (Managed Container Hosting)
+      |
+      v
+Public Web URL (HTTPS)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## AWS Service Mapping
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Azure Service                    | AWS Equivalent                    |
+| -------------------------------- | --------------------------------- |
+| Azure Container Registry (ACR)   | Amazon ECR                        |
+| Azure DevOps Pipelines           | GitHub Actions                    |
+| Azure App Service for Containers | AWS App Runner                    |
+| Azure Monitor / Log Analytics    | Amazon CloudWatch                 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deployment Features
 
-## Learn More
+- **Multi-stage Docker Build**: Optimized image size and security using `node:20-alpine` and non-root users.
+- **Automated CI/CD**: Pushing to the `main` branch triggers a GitHub Actions workflow that builds, tags, and pushes the image to Amazon ECR.
+- **Continuous Deployment**: AWS App Runner is configured to automatically redeploy whenever a new image tag (`latest`) is pushed to ECR.
+- **Health Monitoring**: Integrated health checks and CloudWatch logging.
 
-To learn more about Next.js, take a look at the following resources:
+## Local Development & Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Build Image Locally
+```bash
+docker build -t my-app-1 .
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Run Locally
+```bash
+docker run -p 3000:3000 my-app-1
+```
 
-## Deploy on Vercel
+## How to View Logs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Application logs and deployment logs are centrally managed in **Amazon CloudWatch**.
+1. Open the [AWS App Runner Console](https://console.aws.amazon.com/apprunner/).
+2. Select the `my-app-1` service.
+3. Go to the **Logs** tab to view:
+   - **Service logs**: Deployment and scaling events.
+   - **Application logs**: Stdout/stderr from your container.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Live Application
+**URL:** [https://thjnsgjnu5.us-east-1.awsapprunner.com](https://thjnsgjnu5.us-east-1.awsapprunner.com)
